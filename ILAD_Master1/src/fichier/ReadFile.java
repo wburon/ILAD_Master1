@@ -18,28 +18,46 @@ public class ReadFile {
 		  String st;
 		  // 
 		  int nbRow = 0, nbColumn = 0, rangeRouter = 0;
+		  int backboneCost = 0, routeurCost = 0, budget = 0;
+		  int xInitBackbone, yInitBackbone;
 		  // compteur pour les 3 premières lignes de traitement
 		  int i = 1;
+		  // numéro de la ligne de l'instance
+		  int j = 0;
+		  // tableau correspondant à l'instance
+		  Cellule[][] instance = new Cellule[nbRow][nbColumn];
 		  while ((st = br.readLine()) != null) {
+			  String[] splitSt = st.split(" ");
 			  switch(i){
 			  	case 1 :
-			  		String[] splitSt = st.split(" ");
 			  		nbRow = Integer.parseInt(splitSt[0]); nbColumn = Integer.parseInt(splitSt[1]); rangeRouter = Integer.parseInt(splitSt[2]); 
 			  		break;
 			  	case 2 :
-			  		
+			  		backboneCost = Integer.parseInt(splitSt[0]); routeurCost = Integer.parseInt(splitSt[1]); budget = Integer.parseInt(splitSt[2]);
 			  		break;
 			  	case 3:
+			  		xInitBackbone = Integer.parseInt(splitSt[0]); yInitBackbone = Integer.parseInt(splitSt[1]);
 			  		break;
 			  	default :
-				  System.out.println(st); 
+			  		for(int k = 0; k < nbColumn; k++){
+			  			instance[j][k] = new Cellule(j,k, String.valueOf(st.charAt(k)));
+			  		}
+			  		j++;
 			  }
 			  i++;
 		  }
 		  System.out.println("Nombre de ligne : " + nbRow);
 		  System.out.println("Nombre de colonne : " + nbColumn);
 		  System.out.println("Range of routeur : " + rangeRouter);
-		//Cellule[][] instance = new Cellule[][];
+		  System.out.println("Backbone cost : " + backboneCost);
+		  System.out.println("Router cost : " + routeurCost);
+		  System.out.println("Budget : " + budget);
+		  for(int row=0; i<nbRow; i++){
+			  for(int col = 0; j < nbColumn; j++){
+				  System.out.print(instance[row][col].getStatut());
+			  }
+			  System.out.println();
+		  }
 		  return null;
 	}
 	

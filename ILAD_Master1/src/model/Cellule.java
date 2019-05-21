@@ -7,18 +7,34 @@ public class Cellule {
 	private int y;
 	private boolean connectToBackbone;
 	private boolean routerOn;
+	private String statut;
 	
 	public Cellule(){
 		
 	}
 	
-	public Cellule(boolean couvert, int x, int y, boolean connectToBackbone, boolean routerOn) {
+	public Cellule(int x, int y, String statut){
+		this.x = x;
+		this.y = y;
+		this.statut = statut;
+	}
+	
+	public Cellule(boolean couvert, int x, int y, boolean connectToBackbone, boolean routerOn, String statut) {
 		super();
 		this.couvert = couvert;
 		this.x = x;
 		this.y = y;
 		this.connectToBackbone = connectToBackbone;
 		this.routerOn = routerOn;
+		this.statut = statut;
+	}
+
+	public String getStatut() {
+		return statut;
+	}
+
+	public void setStatut(String statut) {
+		this.statut = statut;
 	}
 
 	public boolean isCouvert() {
