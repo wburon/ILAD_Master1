@@ -9,17 +9,81 @@ import model.Cellule;
 
 public class ReadFile {
 	
-	public static Cellule[][] getInstance(String path) throws IOException{
+	private int nbRow = 0, nbColumn = 0, rangeRouter = 0, backboneCost = 0, routeurCost = 0, budget = 0, xInitBackbone, yInitBackbone;
+	
+	
+	
+	public int getNbRow() {
+		return nbRow;
+	}
+
+	public void setNbRow(int nbRow) {
+		this.nbRow = nbRow;
+	}
+
+	public int getNbColumn() {
+		return nbColumn;
+	}
+
+	public void setNbColumn(int nbColumn) {
+		this.nbColumn = nbColumn;
+	}
+
+	public int getRangeRouter() {
+		return rangeRouter;
+	}
+
+	public void setRangeRouter(int rangeRouter) {
+		this.rangeRouter = rangeRouter;
+	}
+
+	public int getBackboneCost() {
+		return backboneCost;
+	}
+
+	public void setBackboneCost(int backboneCost) {
+		this.backboneCost = backboneCost;
+	}
+
+	public int getRouteurCost() {
+		return routeurCost;
+	}
+
+	public void setRouteurCost(int routeurCost) {
+		this.routeurCost = routeurCost;
+	}
+
+	public int getBudget() {
+		return budget;
+	}
+
+	public void setBudget(int budget) {
+		this.budget = budget;
+	}
+
+	public int getxInitBackbone() {
+		return xInitBackbone;
+	}
+
+	public void setxInitBackbone(int xInitBackbone) {
+		this.xInitBackbone = xInitBackbone;
+	}
+
+	public int getyInitBackbone() {
+		return yInitBackbone;
+	}
+
+	public void setyInitBackbone(int yInitBackbone) {
+		this.yInitBackbone = yInitBackbone;
+	}
+
+	public Cellule[][] getInstance(String path) throws IOException{
 
 		  File file = new File(path); 
 		  
 		  BufferedReader br = new BufferedReader(new FileReader(file)); 
 		  
 		  String st;
-		  // 
-		  int nbRow = 0, nbColumn = 0, rangeRouter = 0;
-		  int backboneCost = 0, routeurCost = 0, budget = 0;
-		  int xInitBackbone, yInitBackbone;
 		  // compteur pour les 3 premières lignes de traitement
 		  int i = 1;
 		  // numéro de la ligne de l'instance
@@ -60,13 +124,14 @@ public class ReadFile {
 			  }
 			  System.out.println();
 		  }
-		  return null;
+		  return instance;
 	}
 	
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		try {
-			getInstance("instances/charleston_road");
+			ReadFile rf = new ReadFile();
+			rf.getInstance("instances/charleston_road");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
