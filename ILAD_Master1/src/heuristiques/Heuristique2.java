@@ -3,7 +3,6 @@ package heuristiques;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.SynchronousQueue;
 
 import fichier.ReadFile;
 import model.Cellule;
@@ -18,6 +17,14 @@ public class Heuristique2 extends Heuristique{
 	private int number_of_cells_to_cover = 0, number_of_cells_cover;
 	
 	
+	public ArrayList<Cellule> getCellsConnectToBackbone() {
+		return cellsConnectToBackbone;
+	}
+
+	public void setCellsConnectToBackbone(ArrayList<Cellule> cellsConnectToBackbone) {
+		this.cellsConnectToBackbone = cellsConnectToBackbone;
+	}
+
 	public ReadFile getRf() {
 		return rf;
 	}
@@ -116,6 +123,11 @@ public class Heuristique2 extends Heuristique{
 			// Calcul du coût d'installation, vérification de la limite budget, mise en place(ou non) de l'opération 
 			int prixInstall = rf.getRouteurCost() + distanceMin * rf.getBackboneCost();
 			if(cost + prixInstall <= rf.getBudget() && prixInstall < 1000 * maxlength){
+				// Routeur
+				System.out.println("R : " +coordMax.getX()+","+coordMax.getY());
+				if(coordMax.getX() == 55 && coordMax.getY() == 144){
+					System.out.println("stop");
+				}
 				instance[coordMax.getX()][coordMax.getY()].setRouterOn(true);
 				// On relie le routeur à cellule Reliée en ajoutant des jetons au backbone
 				List<Cellule> listBackbone = PCC(coordMax,celluleReliee);
@@ -149,20 +161,24 @@ public class Heuristique2 extends Heuristique{
 		ArrayList<Cellule> listToConnect = new ArrayList<>();
 		//sameLine
 		if(celluleReliee.getX() == coordMax.getX()){
-			for(int i = Math.min(coordMax.getY(), celluleReliee.getY()); i < Math.max(coordMax.getY(),  celluleReliee.getY()); i++){
+			for(int i = Math.min(coordMax.getY(), celluleReliee.getY()); i <= Math.max(coordMax.getY(),  celluleReliee.getY()); i++){
 				instance[celluleReliee.getX()][i].setConnectToBackbone(true);
 				listToConnect.add(instance[celluleReliee.getX()][i]);
 			}
+			if(Math.min(coordMax.getY(), celluleReliee.getY()) == coordMax.getY())
+				listToConnect = renverse(listToConnect);
 		}
 		//sameColumn
-		if(celluleReliee.getY() == coordMax.getY()){
-			for(int i = Math.min(coordMax.getX(), celluleReliee.getX()); i < Math.max(coordMax.getX(), celluleReliee.getX()); i++){
+		else if(celluleReliee.getY() == coordMax.getY()){
+			for(int i = Math.min(coordMax.getX(), celluleReliee.getX()); i <= Math.max(coordMax.getX(), celluleReliee.getX()); i++){
 				instance[i][celluleReliee.getY()].setConnectToBackbone(true);
 				listToConnect.add(instance[i][celluleReliee.getY()]);
 			}
+			if(Math.min(coordMax.getX(), celluleReliee.getX()) == coordMax.getX())
+				listToConnect = renverse(listToConnect);
 		}
 		//en diagonale
-		if(celluleReliee.getX() != coordMax.getX() && celluleReliee.getY() != coordMax.getY()){
+		else if(celluleReliee.getX() != coordMax.getX() && celluleReliee.getY() != coordMax.getY()){
 			int q1 = 0, q2 = 0;
 			// si routeur en haut à droite de backbone
 			if(coordMax.getX() < celluleReliee.getX() && coordMax.getY() > celluleReliee.getY()){
@@ -180,30 +196,52 @@ public class Heuristique2 extends Heuristique{
 			if(coordMax.getX() > celluleReliee.getX() && coordMax.getY() > celluleReliee.getY()){
 				q1 = -1; q2 = -1;
 			}
-			int k = 1;
-			while(celluleReliee.getX() != coordMax.getX()+k*q1 && celluleReliee.getY() != coordMax.getY()+k*q2){
+			int k = 0;
+			instance[coordMax.getX()+k*q1][coordMax.getY()+k*q2].setConnectToBackbone(true);
+			listToConnect.add(instance[coordMax.getX()+k*q1][coordMax.getY()+k*q2]);
+			do{
+				k++;
 				instance[coordMax.getX()+k*q1][coordMax.getY()+k*q2].setConnectToBackbone(true);
 				listToConnect.add(instance[coordMax.getX()+k*q1][coordMax.getY()+k*q2]);
-				k++;
-			}
+			}while(celluleReliee.getX() != coordMax.getX()+k*q1 && celluleReliee.getY() != coordMax.getY()+k*q2);
+			if(!(celluleReliee.getX() == coordMax.getX()+k*q1 && celluleReliee.getY() == coordMax.getY()+k*q2)){
+				ArrayList<Cellule> listProvisoire = new ArrayList<>();
 			//sameLine
 			if(celluleReliee.getX() == coordMax.getX()+k*q1){
-				for(int i = Math.min(coordMax.getY()+k*q2, celluleReliee.getY()); i < Math.max(coordMax.getY()+k*q2,  celluleReliee.getY()); i++){
+				for(int i = Math.min(coordMax.getY()+1+k*q2, celluleReliee.getY()); i < Math.max(coordMax.getY()+1+k*q2,  celluleReliee.getY()) - 1; i++){
 					instance[celluleReliee.getX()][i].setConnectToBackbone(true);
-					listToConnect.add(instance[celluleReliee.getX()][i]);
+					listProvisoire.add(instance[celluleReliee.getX()][i]);
 				}
+				if(Math.min(coordMax.getY(), celluleReliee.getY()) == coordMax.getY())
+					listProvisoire = renverse(listProvisoire);
 			}
 			//sameColumn
 			if(celluleReliee.getY() == coordMax.getY()+k*q2){
-				for(int i = Math.min(coordMax.getX()+k*q1, celluleReliee.getX()); i < Math.max(coordMax.getX()+k*q1, celluleReliee.getX()); i++){
+				for(int i = Math.min(coordMax.getX()+1+k*q1, celluleReliee.getX()); i < Math.max(coordMax.getX()+1+k*q1, celluleReliee.getX())-1; i++){
 					instance[i][celluleReliee.getY()].setConnectToBackbone(true);
-					listToConnect.add(instance[i][celluleReliee.getY()]);
+					listProvisoire.add(instance[i][celluleReliee.getY()]);
 				}
+				if(Math.min(coordMax.getX(), celluleReliee.getX()) == coordMax.getX())
+					listProvisoire = renverse(listProvisoire);
 			}
+			listToConnect.addAll(listProvisoire);
+			}
+			listToConnect = renverse(listToConnect);
 		}
 		removeCellOfList(listToConnect,instance[celluleReliee.getX()][celluleReliee.getY()]);
 		this.cellsConnectToBackbone.addAll(listToConnect);
+		for(Cellule c : listToConnect){
+			System.out.println(c.getX()+","+c.getY());
+		}
 		return listToConnect;
+	}
+
+	private ArrayList<Cellule> renverse(ArrayList<Cellule> listToConnect) {
+		ArrayList<Cellule> returnList = new ArrayList<>();
+		for(int i = listToConnect.size()-1; i >=0; i--){
+			returnList.add(listToConnect.get(i));
+		}
+		return returnList;
 	}
 
 	private List<Cellule> CBIS(int a, int b) {
@@ -230,18 +268,42 @@ public class Heuristique2 extends Heuristique{
 		Heuristique2 h = new Heuristique2();
 		h.intitialisation();
 		h.solve();
-		System.out.println("OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO");
+		System.out.println();
 		for(int row=0; row<h.getRf().getNbRow(); row++){
 			  for(int col = 0; col < h.getRf().getNbColumn(); col++){
 				  if(h.getInstance()[row][col].isRouterOn())
 					  System.out.print("R");
 				  else if(h.getInstance()[row][col].isConnectToBackbone())
 					  System.out.print("B");
-				  else 
+				  else if(h.getInstance()[row][col].isCouvert())
+					  System.out.print("C");
+				  else
 					  System.out.print(h.getInstance()[row][col].getStatut());
+				
 			  }
 			  System.out.println();
 		  }
+//		for(Cellule c : h.getCellsConnectToBackbone())
+//			System.out.println(c.getX() + "," + c.getY());
+		System.out.println(verifyListBackbone(h.getCellsConnectToBackbone(), h.getRf().getxInitBackbone(), h.getRf().getyInitBackbone()));
+	}
+	
+	public static boolean verifyListBackbone(ArrayList<Cellule> list, int ixBackbone, int iyBackbone){
+		for(int i = 0; i < list.size(); i++){
+			if(!(Math.abs(ixBackbone - list.get(i).getX()) <= 1 || Math.abs(iyBackbone - list.get(i).getY()) <= 1)){
+				if(!isConnect(i, list))
+					return false;
+			}
+		}
+		return true;
+	}
+
+	private static boolean isConnect(int i, ArrayList<Cellule> list) {
+		for(int j =  i - 1; j >= 0; j--){
+			if(Math.abs(list.get(j).getX() - list.get(i).getX()) <= 1 || Math.abs(list.get(j).getY() - list.get(i).getY()) <= 1)
+				return true;
+		}
+		return false;
 	}
 	
 
