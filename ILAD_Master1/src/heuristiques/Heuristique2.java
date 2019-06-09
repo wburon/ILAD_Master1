@@ -19,6 +19,30 @@ public class Heuristique2 extends Heuristique{
 	private int number_of_cells_to_cover = 0, number_of_cells_cover;
 	
 	
+	public ArrayList<Cellule> getCellsEligibleRouteur() {
+		return cellsEligibleRouteur;
+	}
+
+	public void setCellsEligibleRouteur(ArrayList<Cellule> cellsEligibleRouteur) {
+		this.cellsEligibleRouteur = cellsEligibleRouteur;
+	}
+
+	public int getNumber_of_cells_to_cover() {
+		return number_of_cells_to_cover;
+	}
+
+	public void setNumber_of_cells_to_cover(int number_of_cells_to_cover) {
+		this.number_of_cells_to_cover = number_of_cells_to_cover;
+	}
+
+	public int getNumber_of_cells_cover() {
+		return number_of_cells_cover;
+	}
+
+	public void setNumber_of_cells_cover(int number_of_cells_cover) {
+		this.number_of_cells_cover = number_of_cells_cover;
+	}
+
 	public ArrayList<Cellule> getCellsWithRouter() {
 		return cellsWithRouter;
 	}
@@ -321,16 +345,17 @@ public class Heuristique2 extends Heuristique{
 		 try (FileWriter writer = new FileWriter("heuristique2.txt");
 	             BufferedWriter bw = new BufferedWriter(writer)) {
 
-	            bw.write(routeur.size()+"\n");
-	            for(Cellule c : routeur)
-	            	bw.write("("+c.getX()+","+c.getY()+")\n");
 	            bw.write(backbone.size()+"\n");
 	            for(Cellule c : backbone)
+	            	bw.write("("+c.getX()+","+c.getY()+")\n");
+	            bw.write(routeur.size()+"\n");
+	            for(Cellule c : routeur)
 	            	bw.write("("+c.getX()+","+c.getY()+")\n");
 
 	        } catch (IOException e) {
 	            System.err.format("IOException: %s%n", e);
 	        }
+		 System.out.println("SCORE : "+(1000*h.getNumber_of_cells_cover()+(h.getRf().getBudget()-(backbone.size()*h.getRf().getBackboneCost()+routeur.size()*h.getRf().getRouteurCost()))));
 	}
 	
 
