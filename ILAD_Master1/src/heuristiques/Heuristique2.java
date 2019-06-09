@@ -1,5 +1,7 @@
 package heuristiques;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,10 +15,18 @@ public class Heuristique2 extends Heuristique{
 	private ReadFile rf;
 	private Cellule[][] instance;
 	private ArrayList<Cellule> cellsEligibleRouteur;
-	private ArrayList<Cellule> cellsConnectToBackbone;
+	private ArrayList<Cellule> cellsConnectToBackbone, cellsWithRouter;
 	private int number_of_cells_to_cover = 0, number_of_cells_cover;
 	
 	
+	public ArrayList<Cellule> getCellsWithRouter() {
+		return cellsWithRouter;
+	}
+
+	public void setCellsWithRouter(ArrayList<Cellule> cellsWithRouter) {
+		this.cellsWithRouter = cellsWithRouter;
+	}
+
 	public ArrayList<Cellule> getCellsConnectToBackbone() {
 		return cellsConnectToBackbone;
 	}
@@ -48,6 +58,7 @@ public class Heuristique2 extends Heuristique{
 			instance = rf.getInstance("instances/charleston_road");
 			cellsEligibleRouteur = formListCelluleEligibleRouteur();
 			cellsConnectToBackbone = initListBackbone();
+			cellsWithRouter = new ArrayList<>();
 			number_of_cells_cover = 0;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -124,10 +135,7 @@ public class Heuristique2 extends Heuristique{
 			int prixInstall = rf.getRouteurCost() + distanceMin * rf.getBackboneCost();
 			if(cost + prixInstall <= rf.getBudget() && prixInstall < 1000 * maxlength){
 				// Routeur
-				System.out.println("R : " +coordMax.getX()+","+coordMax.getY());
-				if(coordMax.getX() == 55 && coordMax.getY() == 144){
-					System.out.println("stop");
-				}
+				this.cellsWithRouter.add(coordMax);
 				instance[coordMax.getX()][coordMax.getY()].setRouterOn(true);
 				// On relie le routeur à cellule Reliée en ajoutant des jetons au backbone
 				List<Cellule> listBackbone = PCC(coordMax,celluleReliee);
@@ -286,6 +294,7 @@ public class Heuristique2 extends Heuristique{
 //		for(Cellule c : h.getCellsConnectToBackbone())
 //			System.out.println(c.getX() + "," + c.getY());
 		System.out.println(verifyListBackbone(h.getCellsConnectToBackbone(), h.getRf().getxInitBackbone(), h.getRf().getyInitBackbone()));
+		writeSolution(h);
 	}
 	
 	public static boolean verifyListBackbone(ArrayList<Cellule> list, int ixBackbone, int iyBackbone){
@@ -304,6 +313,24 @@ public class Heuristique2 extends Heuristique{
 				return true;
 		}
 		return false;
+	}
+	
+	public static void writeSolution(Heuristique2 h){
+		ArrayList<Cellule> backbone = h.getCellsConnectToBackbone();
+		ArrayList<Cellule> routeur = h.getCellsWithRouter();
+		 try (FileWriter writer = new FileWriter("heuristique2.txt");
+	             BufferedWriter bw = new BufferedWriter(writer)) {
+
+	            bw.write(routeur.size()+"\n");
+	            for(Cellule c : routeur)
+	            	bw.write("("+c.getX()+","+c.getY()+")\n");
+	            bw.write(backbone.size()+"\n");
+	            for(Cellule c : backbone)
+	            	bw.write("("+c.getX()+","+c.getY()+")\n");
+
+	        } catch (IOException e) {
+	            System.err.format("IOException: %s%n", e);
+	        }
 	}
 	
 
