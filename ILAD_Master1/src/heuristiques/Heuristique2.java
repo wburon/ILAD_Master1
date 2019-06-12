@@ -172,7 +172,7 @@ public class Heuristique2 extends Heuristique{
 				}
 				cost += prixInstall;
 			}
-			System.out.println("new cost = " + cost + " taille de liste restante : " + this.cellsEligibleRouteur.size());
+//			System.out.println("new cost = " + cost + " taille de liste restante : " + this.cellsEligibleRouteur.size());
 			removeCellOfList(this.cellsEligibleRouteur,coordMax);
 		}	
 		System.out.println("FIN");
@@ -262,9 +262,9 @@ public class Heuristique2 extends Heuristique{
 		}
 		removeCellOfList(listToConnect,instance[celluleReliee.getX()][celluleReliee.getY()]);
 		this.cellsConnectToBackbone.addAll(listToConnect);
-		for(Cellule c : listToConnect){
-			System.out.println(c.getX()+","+c.getY());
-		}
+//		for(Cellule c : listToConnect){
+//			System.out.println(c.getX()+","+c.getY());
+//		}
 		return listToConnect;
 	}
 
@@ -317,11 +317,11 @@ public class Heuristique2 extends Heuristique{
 		  }
 //		for(Cellule c : h.getCellsConnectToBackbone())
 //			System.out.println(c.getX() + "," + c.getY());
-		System.out.println(verifyListBackbone(h.getCellsConnectToBackbone(), h.getRf().getxInitBackbone(), h.getRf().getyInitBackbone()));
-		writeSolution(h);
+		System.out.println(h.verifyListBackbone(h.getCellsConnectToBackbone(), h.getRf().getxInitBackbone(), h.getRf().getyInitBackbone()));
+		h.writeSolution(h);
 	}
 	
-	public static boolean verifyListBackbone(ArrayList<Cellule> list, int ixBackbone, int iyBackbone){
+	public boolean verifyListBackbone(ArrayList<Cellule> list, int ixBackbone, int iyBackbone){
 		for(int i = 0; i < list.size(); i++){
 			if(!(Math.abs(ixBackbone - list.get(i).getX()) <= 1 || Math.abs(iyBackbone - list.get(i).getY()) <= 1)){
 				if(!isConnect(i, list))
@@ -331,7 +331,7 @@ public class Heuristique2 extends Heuristique{
 		return true;
 	}
 
-	private static boolean isConnect(int i, ArrayList<Cellule> list) {
+	private boolean isConnect(int i, ArrayList<Cellule> list) {
 		for(int j =  i - 1; j >= 0; j--){
 			if(Math.abs(list.get(j).getX() - list.get(i).getX()) <= 1 || Math.abs(list.get(j).getY() - list.get(i).getY()) <= 1)
 				return true;
@@ -339,7 +339,7 @@ public class Heuristique2 extends Heuristique{
 		return false;
 	}
 	
-	public static void writeSolution(Heuristique2 h){
+	public void writeSolution(Heuristique2 h){
 		ArrayList<Cellule> backbone = h.getCellsConnectToBackbone();
 		ArrayList<Cellule> routeur = h.getCellsWithRouter();
 		 try (FileWriter writer = new FileWriter("heuristique2.txt");
@@ -356,6 +356,11 @@ public class Heuristique2 extends Heuristique{
 	            System.err.format("IOException: %s%n", e);
 	        }
 		 System.out.println("SCORE : "+(1000*h.getNumber_of_cells_cover()+(h.getRf().getBudget()-(backbone.size()*h.getRf().getBackboneCost()+routeur.size()*h.getRf().getRouteurCost()))));
+	}
+	
+	public int getScore(){
+		return (1000*this.number_of_cells_cover+(this.rf.getBudget()-(this.cellsConnectToBackbone.size()*this.rf.getBackboneCost()+this.cellsWithRouter.size()*this.rf.getRouteurCost())));
+
 	}
 	
 
