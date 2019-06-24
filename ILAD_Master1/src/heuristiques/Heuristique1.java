@@ -113,6 +113,26 @@ public class Heuristique1 extends Heuristique {
 		 */
 		int eff = 300;
 		int cost = 0;
+		int born1 = 0;
+		while (born1 != 0) {
+			for (int j = 0; j < rf.getNbColumn(); j++) {
+				for (int i = 0; i < rf.getNbRow(); i++) {
+					if (instance[i][j].getStatut().equals(".")){
+						born1 = j;
+					}
+					}
+				}
+		}
+		int born2 = -1;
+		while (born2 == -1) {
+			for (int j = 0; j < rf.getNbColumn(); j++) {
+				for (int i = 0; i < rf.getNbRow(); i++) {
+					if(instance[rf.getNbRow()-i][rf.getNbColumn()-j].getStatut().equals("."));
+						born2  = j;
+					}
+				}
+			}
+
 		int prixinstall = (rf.getNbColumn() - 1) * rf.getBackboneCost();
 		if (cost + prixinstall <= rf.getBudget()) {
 			for (int i = 0; i < rf.getNbColumn(); i++) {
