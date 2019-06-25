@@ -3,6 +3,7 @@ package heuristiques;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.SynchronousQueue;
 
 import model.Cellule;
 
@@ -10,8 +11,7 @@ public class Metaheuristique {
 
 	public static void main(String[] args) {
 		Metaheuristique meta = new Metaheuristique();
-		meta.solve(10);
-
+		meta.solve(20);
 	}
 	
 	private List<Cellule> removeCellOfList(ArrayList<Cellule> list_of_cells, Cellule cell){
@@ -30,6 +30,7 @@ public class Metaheuristique {
 		h.intitialisation();
 		h.solve();
 		int score = h.getScore();
+		System.out.println("FIRST SOLUCE : "+ score);
 		for(int i = 0; i < 10; i++){
 			Heuristique2 h2 = new Heuristique2();
 			h2.intitialisation();
@@ -42,6 +43,8 @@ public class Metaheuristique {
 				Cellule cell = cellWithRouter.get(router);
 				removeCellOfList(cellEligible, cell);
 			}
+			h2.setCellsEligibleRouteur(cellEligible);
+			System.out.println("NEW SOLVE");
 			h2.solve();
 			if(h2.getScore() > score ){
 				System.out.println("Ancien Score : " + score + " Nouveau Score : " + h2.getScore());
