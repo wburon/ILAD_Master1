@@ -1,5 +1,7 @@
 package heuristiques;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,11 +15,19 @@ public class Heuristique1 extends Heuristique {
 	private ReadFile rf;
 	private Cellule[][] instance;
 	private ArrayList<Cellule> cellsEligibleRouteur;
-	private ArrayList<Cellule> cellsConnectToBackbone;
+	private ArrayList<Cellule> cellsConnectToBackbone, cellsWithRouteur;
 	private int number_of_cells_to_cover = 0, number_of_cells_cover;
 
 	
 	
+	public ArrayList<Cellule> getCellsWithRouteur() {
+		return cellsWithRouteur;
+	}
+
+	public void setCellsWithRouteur(ArrayList<Cellule> cellsWithRouteur) {
+		this.cellsWithRouteur = cellsWithRouteur;
+	}
+
 	public ArrayList<Cellule> getCellsEligibleRouteur() {
 		return cellsEligibleRouteur;
 	}
@@ -105,7 +115,29 @@ public class Heuristique1 extends Heuristique {
 		}
 		return listToReturn;
 	}
-
+	
+	public int born1() {
+		for (int j = 0; j < rf.getNbColumn(); j++) {
+			for (int i = 0; i < rf.getNbRow(); i++) {
+				if (instance[i][j].getStatut().equals(".")){
+					return j;
+				}
+				}
+			}
+		return -1;
+	}
+	
+	public int born2() {
+		for (int j = rf.getNbColumn() -1; j >= 0 ; j--) {
+			for (int i = rf.getNbRow() - 1; i >= 0 ; i--) {
+				if (instance[i][j].getStatut().equals(".")){
+					return j;
+				}
+				}
+			}
+		return -1;
+	}
+	
 	public void solve() {
 		/*
 		 * On choisit l'efficacité minimale que doit avoir un routeur pour qu'il
@@ -113,39 +145,28 @@ public class Heuristique1 extends Heuristique {
 		 */
 		int eff = 300;
 		int cost = 0;
-		int born1 = 0;
-		while (born1 != 0) {
-			for (int j = 0; j < rf.getNbColumn(); j++) {
-				for (int i = 0; i < rf.getNbRow(); i++) {
-					if (instance[i][j].getStatut().equals(".")){
-						born1 = j;
-					}
-					}
-				}
-		}
-		int born2 = -1;
-		while (born2 == -1) {
-			for (int j = 0; j < rf.getNbColumn(); j++) {
-				for (int i = 0; i < rf.getNbRow(); i++) {
-					if(instance[rf.getNbRow()-i][rf.getNbColumn()-j].getStatut().equals("."));
-						born2  = j;
-					}
-				}
-			}
-
-		int prixinstall = (rf.getNbColumn() - 1) * rf.getBackboneCost();
+		int born1 = born1();
+		int born2 = born2();
+		
+		//cellsConnect to backbone -> modif 
+		int prixinstall = (born2 - born1 +1) * rf.getBackboneCost();
 		if (cost + prixinstall <= rf.getBudget()) {
-			for (int i = 0; i < rf.getNbColumn(); i++) {
+			for (int i = rf.getyInitBackbone()-1; i >= born1; i--) {
+				instance[rf.getxInitBackbone()][i].setConnectToBackbone(true);
+				this.cellsConnectToBackbone.add(instance[rf.getxInitBackbone()][i]);
+			}
+			for (int i = rf.getyInitBackbone()+1; i <= born2; i++) {
 				instance[rf.getxInitBackbone()][i].setConnectToBackbone(true);
 				this.cellsConnectToBackbone.add(instance[rf.getxInitBackbone()][i]);
 			}
 			cost += prixinstall;
 		}
 
-		Cellule coordMax = new Cellule();
+		
 		List<Cellule> listCoordMax = new ArrayList<>();
 		for (int j = 0; j < rf.getNbColumn(); j++) {
 			for (int i = 0; i < rf.getNbRow(); i++) {
+				Cellule coordMax = new Cellule();
 				if (!instance[i][j].getStatut().equals("#")) {
 					List<Cellule> listCoord = CBIS(i, j);
 					// si efficacité > eff
@@ -174,6 +195,7 @@ public class Heuristique1 extends Heuristique {
 
 						int prixInstall = rf.getRouteurCost() + distanceMin * rf.getBackboneCost();
 						if (cost + prixInstall <= rf.getBudget() && prixInstall < 1000 * maxlength) {
+							this.cellsWithRouteur.add(coordMax);
 							instance[coordMax.getX()][coordMax.getY()].setRouterOn(true);
 							// On relie le routeur à cellule Reliée en ajoutant
 							// des jetons au backbone
@@ -220,23 +242,33 @@ public class Heuristique1 extends Heuristique {
 			}
 			System.out.println();
 		}
-		
-		
-		
-		System.out.println("Score : " + (1000*h.getNumber_of_cells_cover() + (h.getRf().getBudget() - (h.getCellsConnectToBackbone().size()*h.getRf().getBackboneCost() + nbRouteur*h.getRf().getRouteurCost()) )) );
+		h.writeSolution(h);
 	}
 
 	private List<Cellule> PCC(Cellule coordMax, Cellule celluleReliee) {
 		ArrayList<Cellule> listToConnect = new ArrayList<>();
 		// sameColumn
 		if (celluleReliee.getY() == coordMax.getY()) {
-			for (int i = Math.min(coordMax.getX(), celluleReliee.getX()); i < Math.max(coordMax.getX(),
+			if( celluleReliee.getX()>coordMax.getX()) {
+				for (int i = celluleReliee.getX(); i>coordMax.getX(); i-- ) {
+					instance[i][celluleReliee.getY()].setConnectToBackbone(true);
+					listToConnect.add(instance[i][celluleReliee.getY()]);
+				}
+			}
+			if( celluleReliee.getX()<coordMax.getX()) {
+				for (int i = celluleReliee.getX(); i< coordMax.getX(); i++ ) {
+					instance[i][celluleReliee.getY()].setConnectToBackbone(true);
+					listToConnect.add(instance[i][celluleReliee.getY()]);
+				}
+			}
+			/*for (int i = Math.min(coordMax.getX(), celluleReliee.getX()); i < Math.max(coordMax.getX(),
 					celluleReliee.getX()); i++) {
 				instance[i][celluleReliee.getY()].setConnectToBackbone(true);
 				listToConnect.add(instance[i][celluleReliee.getY()]);
-			}
+			}*/
 		}
 		removeCellOfList(listToConnect, instance[celluleReliee.getX()][celluleReliee.getY()]);
+		//listToConnect = renverse(listToConnect);
 		this.cellsConnectToBackbone.addAll(listToConnect);
 		return listToConnect;
 	}
@@ -269,11 +301,44 @@ public class Heuristique1 extends Heuristique {
 			instance = rf.getInstance("instances/charleston_road");
 			cellsEligibleRouteur = formListCelluleEligibleRouteur();
 			cellsConnectToBackbone = initListBackbone();
+			cellsWithRouteur = new ArrayList<>();
 			number_of_cells_cover = 0;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	public void writeSolution(Heuristique1 h){
+		ArrayList<Cellule> backbone = h.getCellsConnectToBackbone();
+		ArrayList<Cellule> routeur = h.getCellsWithRouteur();
+		 try (FileWriter writer = new FileWriter("heuristique1.txt");
+	             BufferedWriter bw = new BufferedWriter(writer)) {
+
+	            bw.write(backbone.size()+"\n");
+	            for(Cellule c : backbone)
+	            	bw.write("("+c.getX()+","+c.getY()+")\n");
+	            bw.write(routeur.size()+"\n");
+	            for(Cellule c : routeur)
+	            	bw.write("("+c.getX()+","+c.getY()+")\n");
+
+	        } catch (IOException e) {
+	            System.err.format("IOException: %s%n", e);
+	        }
+		 System.out.println("SCORE : "+(1000*h.getNumber_of_cells_cover()+(h.getRf().getBudget()-(backbone.size()*h.getRf().getBackboneCost()+routeur.size()*h.getRf().getRouteurCost()))));
+	}
+	
+	private ArrayList<Cellule> renverse(ArrayList<Cellule> listToConnect) {
+		ArrayList<Cellule> returnList = new ArrayList<>();
+		for(int i = listToConnect.size()-1; i >=0; i--){
+			returnList.add(listToConnect.get(i));
+		}
+		return returnList;
+	}
+	
+	public int getScore(){
+		return (1000*this.number_of_cells_cover+(this.rf.getBudget()-(this.cellsConnectToBackbone.size()*this.rf.getBackboneCost()+this.cellsWithRouteur.size()*this.rf.getRouteurCost())));
+
 	}
 
 }
