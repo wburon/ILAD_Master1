@@ -7,10 +7,10 @@ import java.util.concurrent.SynchronousQueue;
 
 import model.Cellule;
 
-public class Metaheuristique {
+public class Metaheuristique2 {
 
 	public static void main(String[] args) {
-		Metaheuristique meta = new Metaheuristique();
+		Metaheuristique2 meta = new Metaheuristique2();
 		meta.solve(20);
 	}
 	
