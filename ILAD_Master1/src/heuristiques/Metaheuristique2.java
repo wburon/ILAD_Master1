@@ -11,7 +11,7 @@ public class Metaheuristique2 {
 
 	public static void main(String[] args) {
 		Metaheuristique2 meta = new Metaheuristique2();
-		meta.solve(20);
+		meta.solve(20, "charleston_road");
 	}
 	
 	private List<Cellule> removeCellOfList(ArrayList<Cellule> list_of_cells, Cellule cell){
@@ -25,15 +25,15 @@ public class Metaheuristique2 {
 		return listToReturn;
 	}
 	
-	public void solve(int purcentOfRouterSelect){
+	public void solve(int purcentOfRouterSelect, String path){
 		Heuristique2 h = new Heuristique2();
-		h.intitialisation();
+		h.intitialisation(path);
 		h.solve();
 		int score = h.getScore();
 		System.out.println("FIRST SOLUCE : "+ score);
 		for(int i = 0; i < 10; i++){
 			Heuristique2 h2 = new Heuristique2();
-			h2.intitialisation();
+			h2.intitialisation(path);
 			ArrayList<Cellule> cellEligible = h2.getCellsEligibleRouteur();
 			ArrayList<Cellule> cellWithRouter = h2.getCellsWithRouter();
 			int numberOfRouterSelect = Math.round(cellWithRouter.size() * purcentOfRouterSelect / 100);

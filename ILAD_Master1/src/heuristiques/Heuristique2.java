@@ -410,7 +410,7 @@ public class Heuristique2 extends Heuristique{
 		listePath.add("lets_go_higher");
 		ArrayList<Cellule> backbone = h.getCellsConnectToBackbone();
 		ArrayList<Cellule> routeur = h.getCellsWithRouter();
-		 try (FileWriter writer = new FileWriter("solution/SubmissionFile/"+path+".txt");
+		 try (FileWriter writer = new FileWriter("solution/SubmissionFile/lets_go_higher.txt");
 	             BufferedWriter bw = new BufferedWriter(writer)) {
 
 	            bw.write(backbone.size()+"\n");
@@ -424,7 +424,7 @@ public class Heuristique2 extends Heuristique{
 	            System.err.format("IOException: %s%n", e);
 	        }
 		try {
-			FileWriter writer = new FileWriter("solution/MapFile/heuristique2/"+path+".txt");
+			FileWriter writer = new FileWriter("solution/MapFile/heuristique2/lets_go_higher.txt");
 			BufferedWriter bw = new BufferedWriter(writer);
 			for(int row=0; row<h.getRf().getNbRow(); row++){
 				  for(int col = 0; col < h.getRf().getNbColumn(); col++){

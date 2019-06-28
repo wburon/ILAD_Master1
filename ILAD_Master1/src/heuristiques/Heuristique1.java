@@ -226,7 +226,7 @@ public class Heuristique1 extends Heuristique {
 	public static void main(String[] args) {
 		int nbRouteur = 0;
 		Heuristique1 h = new Heuristique1();
-		h.intitialisation();
+		h.intitialisation("charleston_road");
 		h.solve();
 		System.out.println("OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO");
 		for (int row = 0; row < h.getRf().getNbRow(); row++) {
@@ -295,10 +295,10 @@ public class Heuristique1 extends Heuristique {
 	}
 
 	@Override
-	public void intitialisation() {
+	public void intitialisation(String path) {
 		try {
 			rf = new ReadFile();
-			instance = rf.getInstance("instances/charleston_road");
+			instance = rf.getInstance("instances/"+path);
 			cellsEligibleRouteur = formListCelluleEligibleRouteur();
 			cellsConnectToBackbone = initListBackbone();
 			cellsWithRouteur = new ArrayList<>();
