@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import fichier.ReadFile;
+import fichier.WriteSolution;
 import model.Cellule;
 import model.Heuristique;
 
@@ -17,8 +18,16 @@ public class Heuristique2 extends Heuristique{
 	private ArrayList<Cellule> cellsEligibleRouteur;
 	private ArrayList<Cellule> cellsConnectToBackbone, cellsWithRouter;
 	private int number_of_cells_to_cover = 0, number_of_cells_cover;
+	private String instanceName;
 	
-	
+	public String getInstanceName() {
+		return instanceName;
+	}
+
+	public void setInstanceName(String instanceName) {
+		this.instanceName = instanceName;
+	}
+
 	public ArrayList<Cellule> getCellsEligibleRouteur() {
 		return cellsEligibleRouteur;
 	}
@@ -84,6 +93,7 @@ public class Heuristique2 extends Heuristique{
 			cellsConnectToBackbone = initListBackbone();
 			cellsWithRouter = new ArrayList<>();
 			number_of_cells_cover = 0;
+			this.instanceName = path;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -119,12 +129,6 @@ public class Heuristique2 extends Heuristique{
 			}
 		}
 		return list;
-	}
-
-	@Override
-	public String getSolutionPathName() {
-		// TODO Auto-generated method stub
-		return "heuristique2.txt";
 	}
 
 	@Override
@@ -343,7 +347,7 @@ public class Heuristique2 extends Heuristique{
 	
 	public static void main(String[] args) {
 		Heuristique2 h = new Heuristique2();
-		h.intitialisation("opera");
+		h.intitialisation("charleston_road");
 		h.solve();
 		System.out.println();
 		for(int row=0; row<h.getRf().getNbRow(); row++){
@@ -366,7 +370,7 @@ public class Heuristique2 extends Heuristique{
 //			System.out.println(c.getX() + "," + c.getY());
 		System.out.println(h.verifyListBackbone(h.getCellsConnectToBackbone(), h.getRf().getxInitBackbone(), h.getRf().getyInitBackbone()));
 //		System.out.println(h.verifiListBackbone());
-		h.writeSolution(h);
+		WriteSolution.writeSolution(h);
 	}
 	
 //	private boolean verifiListBackbone() {
@@ -402,57 +406,10 @@ public class Heuristique2 extends Heuristique{
 		return false;
 	}
 	
-	public void writeSolution(Heuristique2 h){
-		ArrayList<String> listePath = new ArrayList<>();
-		listePath.add("charleston_road");
-		listePath.add("rue_de_londres");
-		listePath.add("opera");
-		listePath.add("lets_go_higher");
-		ArrayList<Cellule> backbone = h.getCellsConnectToBackbone();
-		ArrayList<Cellule> routeur = h.getCellsWithRouter();
-		 try (FileWriter writer = new FileWriter("solution/SubmissionFile/opera.txt");
-	             BufferedWriter bw = new BufferedWriter(writer)) {
-
-	            bw.write(backbone.size()+"\n");
-	            for(Cellule c : backbone)
-	            	bw.write("("+c.getX()+","+c.getY()+")\n");
-	            bw.write(routeur.size()+"\n");
-	            for(Cellule c : routeur)
-	            	bw.write("("+c.getX()+","+c.getY()+")\n");
-
-	        } catch (IOException e) {
-	            System.err.format("IOException: %s%n", e);
-	        }
-		try {
-			FileWriter writer = new FileWriter("solution/MapFile/heuristique2/opera.txt");
-			BufferedWriter bw = new BufferedWriter(writer);
-			for(int row=0; row<h.getRf().getNbRow(); row++){
-				  for(int col = 0; col < h.getRf().getNbColumn(); col++){
-					  if(h.getInstance()[row][col].isRouterOn())
-						  bw.write("R");
-					  else if(h.getRf().getxInitBackbone() == row && h.getRf().getyInitBackbone() == col)
-						  bw.write("I");
-					  else if(h.getInstance()[row][col].isConnectToBackbone())
-						  bw.write("B");
-//					  else if(h.getInstance()[row][col].isCouvert())
-//						  bw.write("C");
-					  else
-						  bw.write(h.getInstance()[row][col].getStatut());
-					
-				  }
-				  bw.write("\n");
-			  }
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		 
-		 System.out.println("SCORE : "+(1000*h.getNumber_of_cells_cover()+(h.getRf().getBudget()-(backbone.size()*h.getRf().getBackboneCost()+routeur.size()*h.getRf().getRouteurCost()))));
-	}
+	
 	
 	public int getScore(){
-		return (1000*this.number_of_cells_cover+(this.rf.getBudget()-(this.cellsConnectToBackbone.size()*this.rf.getBackboneCost()+this.cellsWithRouter.size()*this.rf.getRouteurCost())));
+		return (1000*this.number_of_cells_cover+(this.rf.getBudget()-((this.cellsConnectToBackbone.size()-1)*this.rf.getBackboneCost()+this.cellsWithRouter.size()*this.rf.getRouteurCost())));
 
 	}
 	

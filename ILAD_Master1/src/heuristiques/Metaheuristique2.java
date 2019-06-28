@@ -5,13 +5,14 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.SynchronousQueue;
 
+import fichier.WriteSolution;
 import model.Cellule;
 
 public class Metaheuristique2 {
 
 	public static void main(String[] args) {
 		Metaheuristique2 meta = new Metaheuristique2();
-		meta.solve(20, "charleston_road");
+		meta.solve(20, 10, "charleston_road");
 	}
 	
 	private List<Cellule> removeCellOfList(ArrayList<Cellule> list_of_cells, Cellule cell){
@@ -25,13 +26,13 @@ public class Metaheuristique2 {
 		return listToReturn;
 	}
 	
-	public void solve(int purcentOfRouterSelect, String path){
+	public void solve(int purcentOfRouterSelect, int n, String path){
 		Heuristique2 h = new Heuristique2();
 		h.intitialisation(path);
 		h.solve();
 		int score = h.getScore();
 		System.out.println("FIRST SOLUCE : "+ score);
-		for(int i = 0; i < 10; i++){
+		for(int i = 0; i < n; i++){
 			Heuristique2 h2 = new Heuristique2();
 			h2.intitialisation(path);
 			ArrayList<Cellule> cellEligible = h2.getCellsEligibleRouteur();
@@ -53,6 +54,7 @@ public class Metaheuristique2 {
 			}else
 				System.out.println("PAS MIEUX !");
 		}
+		WriteSolution.writeSolution(h);
 		
 	}
 
